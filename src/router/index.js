@@ -4,7 +4,7 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    component: () => import('../views/HomeView.vue')
+    component: () => import('../views/HomeView.vue'),
   },
   {
     path: '/login',
@@ -14,13 +14,27 @@ const routes = [
   {
     path: '/formulario',
     name: 'formulario',
-    component: () => import('../views/Formulario.vue')
+    component: () => import('../views/Formulario.vue'),
   },
   {
     path: '/admin',
     name: 'admin',
-    component: () => import('../views/AdminView.vue')
-
+    component: () => import('../views/AdminView.vue'),
+  },
+  {
+    path: '/lista',
+    name: 'lista',
+    component: () => import('../views/ListaView.vue'),
+  },
+  {
+    path: '/user',
+    name: 'user',
+    component: () => import('../views/UserView.vue'),
+  },
+  {
+    path: '/loginAdmin',
+    name: 'loginAdmin',
+    component: () => import('../views/LoginAdminView.vue'),
   }
 ];
 

@@ -55,9 +55,6 @@
       </div>
     </DisclosurePanel>
   </Disclosure>
-
-  <!-- Route view placeholder -->
-  <router-view />
 </template>
 
 <script setup>
