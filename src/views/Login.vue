@@ -1,13 +1,21 @@
-<template>
-  <header>
-    <Navbar />
-  </header>
-  <main class="relative flex flex-col items-center justify-center min-h-screen">
-    <div class="background-image background-image1"></div>
-    <div class="background-image background-image2"></div>
-    <Login />
-  </main>
-  <Footer />
+<<template>
+  <div class="flex flex-col min-h-screen">
+    <header>
+      <Navbar />
+      <div class="background-image background-image2 absolute inset-0 z-0"></div>
+
+    </header>
+
+    <main class="flex-grow flex flex-col items-center justify-center relative">
+      <div class="background-image background-image1 absolute inset-0 z-0"></div>
+      <Login class="z-10" />
+    </main>
+
+
+    <footer class="pt-6">
+      <Footer />
+    </footer>
+  </div>
 </template>
 
 <script>

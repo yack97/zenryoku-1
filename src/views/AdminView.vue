@@ -1,11 +1,13 @@
 <template>
-  <header>
-    <NavComponenteAdmin />
-  </header>
-  <div>
-    <div >
-    <ListComponent />
-  </div>
+  <div class="flex flex-col min-h-screen">
+    <header>
+      <NavComponenteAdmin />
+    </header>
+    <main class="flex-grow flex py-8">
+      <div class="w-full ">
+        <ListComponent />
+      </div>
+    </main>
   </div>
 </template>
 

@@ -2,12 +2,12 @@
 import { defineStore } from 'pinia';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { db } from '../FirebaseConfig';
-import { query, collection, where, getDocs } from "firebase/firestore";
+import { query, collection, where, getDocs, orderBy } from "firebase/firestore";
 
 export const useUserStoreInfo = defineStore('userStoreInfo', {
   state: () => ({
-    formData: null,         // Datos del formulario obtenidos de Firestore
-    selectedFile: null,     // Archivo seleccionado (foto)
+    formData: [],          // Datos del formulario obtenidos de Firestore
+    selectedFile: null,    // Archivo seleccionado (foto)
     isAuthenticated: false, // Estado de autenticación del usuario
   }),
   actions: {
@@ -28,11 +28,9 @@ export const useUserStoreInfo = defineStore('userStoreInfo', {
           const querySnapshot = await getDocs(usersQuery);
 
           if (!querySnapshot.empty) {
-            querySnapshot.forEach((doc) => {
-              this.formData = doc.data();
-              // Guarda los datos en localStorage
-              localStorage.setItem(`userFormData_${email}`, JSON.stringify(this.formData));
-            });
+            this.formData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            // Guarda los datos en localStorage
+            localStorage.setItem(`userFormData_${email}`, JSON.stringify(this.formData));
           } else {
             console.error("No se encontró el documento del usuario en Firestore.");
           }
@@ -41,9 +39,57 @@ export const useUserStoreInfo = defineStore('userStoreInfo', {
         }
       }
     },
+    
+    async fetchAllUsers() {
+      try {
+        const usersQuery = query(collection(db, "formulario"));
+        const querySnapshot = await getDocs(usersQuery);
+        this.formData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      } catch (error) {
+        console.error("Error al obtener todos los usuarios:", error);
+      }
+    },
+
+    async orderByField(field, direction = 'asc') {
+      try {
+        const orderQuery = query(collection(db, "formulario"), orderBy(field, direction));
+        const querySnapshot = await getDocs(orderQuery);
+        this.formData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      } catch (error) {
+        console.error("Error al ordenar los datos:", error);
+      }
+    },
+
+    async searchByEmailOrName(searchTerm) {
+      try {
+        const emailQuery = query(collection(db, "formulario"), where("email", "==", searchTerm));
+        const nameQuery = query(collection(db, "formulario"), where("nombre", "==", searchTerm));
+
+        const emailSnapshot = await getDocs(emailQuery);
+        const nameSnapshot = await getDocs(nameQuery);
+
+        const users = [];
+        emailSnapshot.forEach((doc) => {
+          users.push({ id: doc.id, ...doc.data() });
+        });
+
+        nameSnapshot.forEach((doc) => {
+          users.push({ id: doc.id, ...doc.data() });
+        });
+
+        // Elimina duplicados si hay coincidencias en email y nombre
+        this.formData = Array.from(new Set(users.map(a => a.id)))
+          .map(id => users.find(a => a.id === id));
+        
+      } catch (error) {
+        console.error("Error al buscar por email o nombre:", error);
+      }
+    },
+
     setFile(file) { // Método para almacenar el archivo seleccionado
       this.selectedFile = file;
     },
+    
     async uploadPhoto() { // Método para subir la foto a Firebase Storage
       if (!this.selectedFile) {
         console.error("No se ha seleccionado ningún archivo para subir.");
@@ -58,6 +104,7 @@ export const useUserStoreInfo = defineStore('userStoreInfo', {
         console.error("Error al subir la foto:", error);
       }
     },
+    
     checkAuth() { // Método para verificar el estado de autenticación del usuario
       const auth = getAuth();
       onAuthStateChanged(auth, (user) => {

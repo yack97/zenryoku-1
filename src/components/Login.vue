@@ -1,17 +1,17 @@
 <template>
-  <div class="login-container flex flex-col md:flex-row items-center justify-center h-screen mt-16">
-    <div class="mb-12 md:mb-0 md:w-6/12 flex justify-center">
-      <img src="https://tecdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.svg" 
-           class="w-full max-w-md" alt="Phone image" />
+  <div class="login-container flex flex-col md:flex-row items-center justify-center">
+    <div class="flex justify-center md:mb-0 md:w-6/12 sm:pt-6 mt-4 sm:mt-0">
+      <img src="https://tecdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.svg" class="w-full max-w-md"
+        alt="Phone image" />
     </div>
 
-    <div class="flex flex-col md:w-6/12 px-6 py-8 mx-auto">
-      <router-link to="/loginAdmin">
-        <a href="#" class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
+    <div class="flex flex-col md:w-6/12 mx-auto">
+        <div class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
           <img class="w-18 h-16 mr-2" src="../assets/Logo-zenryou (1).png" alt="logo">
-        </a>
-      </router-link>
-      <div class="w-full bg-white rounded-lg shadow dark:border sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+        </div>
+  
+      <div
+        class="w-full bg-white rounded-lg shadow dark:border sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
         <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
           <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
             Un paso que cambiará tu vida.
@@ -19,13 +19,19 @@
           <form class="space-y-4 md:space-y-6" @submit.prevent="login">
             <div>
               <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tu usuario</label>
-              <input v-model="email" type="email" name="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="name@company.com" required>
+              <input v-model="email" type="email" name="email" id="email"
+                class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                placeholder="name@company.com" required>
             </div>
             <div>
-              <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tu contraseña</label>
-              <input v-model="password" type="password" name="password" id="password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+              <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tu
+                contraseña</label>
+              <input v-model="password" type="password" name="password" id="password" placeholder="••••••••"
+                class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                required>
             </div>
-            <button type="submit" class="text-white bg-gradient-to-br from-green-400 to-blue-600 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-2">Ingresar</button>
+            <button type="submit"
+              class="text-white bg-gradient-to-br from-green-400 to-blue-600 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-2">Ingresar</button>
             <p v-if="error" class="mt-4 text-sm text-red-600">{{ error }}</p>
           </form>
         </div>
@@ -36,8 +42,9 @@
 
 <script>
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { query, collection, where, getDocs } from "firebase/firestore"; 
-import { auth, db } from '../FirebaseConfig'; 
+import { query, collection, where, getDocs } from "firebase/firestore";
+import { auth, db } from '../FirebaseConfig';
+import { useUserStore } from '../stores/userStore'; // Importa la Pinia store
 
 export default {
   data() {
@@ -48,42 +55,56 @@ export default {
     };
   },
   methods: {
-  async login() {
-    this.error = null; 
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, this.email, this.password);
-      const user = userCredential.user;
-      console.log('Usuario autenticado:', user.uid);
+    async login() {
+      this.error = null;
+      const userStore = useUserStore(); // Inicializa la store
 
-      // Busca el documento del usuario en Firestore usando el email
-      const usersQuery = query(collection(db, "users"), where("email", "==", this.email));
-      const querySnapshot = await getDocs(usersQuery);
-      
-      if (!querySnapshot.empty) {
-        querySnapshot.forEach((doc) => {
-          const userData = doc.data();
-          console.log('Datos del usuario:', userData);
-          if (userData.role === "user") {
-            // Asegúrate de que 'nombre' esté definido en 'userData'
-            const username = userData.nombre || userData.email; // Si no hay nombre, usar email
-            this.$router.push({ name: 'user', params: { username: username } }); // Pasar el nombre del usuario
-          } else {
-            this.error = "Acceso denegado: No tienes el rol de usuario.";
-            auth.signOut(); 
-            this.$router.push('/login'); 
+      try {
+        // Autenticar al usuario
+        const userCredential = await signInWithEmailAndPassword(auth, this.email, this.password);
+        const user = userCredential.user;
+        console.log('Usuario autenticado:', user.uid);
+
+        // Guarda el email en el store
+        userStore.setEmail(this.email);
+
+        // Consultar Firestore para verificar el usuario
+        const usersCollection = collection(db, "users");
+        const usersQuery = query(usersCollection, where("email", "==", this.email));
+        const querySnapshot = await getDocs(usersQuery);
+
+        if (querySnapshot.empty) {
+          // Si no hay usuarios en la colección, redirige a admin
+          this.$router.push({ name: 'admin' });
+        } else {
+          // Si existen usuarios, buscar el que coincida con el email
+          let userFound = false;
+          querySnapshot.forEach((doc) => {
+            const userData = doc.data();
+            console.log('Datos del usuario:', userData);
+            if (userData.email === this.email) {
+              userFound = true; // Marcamos que encontramos el usuario
+              if (userData.role === "user") {
+                // Si el usuario tiene rol de user, redirigir a la vista user
+                this.$router.push({ name: 'user' });
+              } else {
+                // Si no tiene rol, redirigir a admin
+                this.$router.push({ name: 'admin' });
+              }
+            }
+          });
+
+          // Si no encontramos al usuario en la colección
+          if (!userFound) {
+            this.$router.push({ name: 'admin' });
           }
-        });
-      } else {
-        this.error = "No se encontró información de rol para este usuario.";
-        auth.signOut(); 
-        this.$router.push('/login'); 
+        }
+      } catch (error) {
+        this.error = error.message; // Guarda el mensaje de error
+        console.error('Error de autenticación:', this.error);
       }
-    } catch (error) {
-      this.error = error.message; 
-      console.error(error);
-    }
+    },
   },
-},
 };
 </script>
 
