@@ -24,7 +24,7 @@
 
 <script>
 import { db } from '../FirebaseConfig';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 
 export default {
     mounted() {
@@ -32,7 +32,8 @@ export default {
     },
     methods: {
         async fetchData() {
-            const querySnapshot = await getDocs(collection(db, "formulario"));
+            const q = query(collection(db, "formulario"), orderBy("createdAt", "desc")); // Ordenar por createdAt de manera descendente
+            const querySnapshot = await getDocs(q);
             const dataTable = document.getElementById("data-table");
             dataTable.innerHTML = ""; // Limpiar la tabla antes de llenarla
 
@@ -60,3 +61,5 @@ export default {
     }
 }
 </script>
+
+<style scoped></style>

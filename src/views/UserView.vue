@@ -1,96 +1,53 @@
 <template>
-  <div class="user-profile">
-    <div class="user-info">
-      <img :src="user.avatar" alt="User Avatar" class="avatar">
-      <div class="user-details">
-        <h2>{{ user.name }}</h2>
-        <p>{{ user.email }}</p>
-        <button @click="editProfile">Edit Profile</button>
+  <div class="flex flex-col h-screen">
+    <header class="flex-shrink-0">
+      <NavComponenteAdmin />
+    </header>
+
+    <main class="flex flex-grow flex-col md:flex-row">
+      <!-- Lateral Izquierdo -->
+      <div class="w-full md:w-1/4 p-4">
+        <FotoperfilUser />
+        <PerfilUsuario />
       </div>
-    </div>
-    <div class="progress-chart">
-      <!-- Gráfica de progreso -->
-      <canvas id="progressChart"></canvas>
-    </div>
+
+      <!-- Centro -->
+      <div class="w-full md:w-1/2 bg-gray-800 p-4">
+        <!-- Contenido del centro -->
+        <rutinaSemana />
+      </div>
+
+      <!-- Lateral Derecho -->
+      <div class="w-full md:w-1/4 p-4">
+        <!-- Puedes agregar más contenido aquí -->
+        <GaleriaImagnes />
+      </div>
+    </main>
+
+    <footer class="flex-shrink-0">
+      <Footer />
+    </footer>
   </div>
 </template>
-
 <script>
+import NavComponenteAdmin from '../components/NavComponenteAdmin.vue';
+import Footer from '../components/Footer.vue';
+import PerfilUsuario from '../components/PerfilUsuario.vue';
+import FotoperfilUser from '../components/FotoperfilUser.vue';
+import GaleriaImagnes from '../components/GaleriaImagnes.vue';
+import rutinaSemana from '../components/rutinaSemana.vue';
+
+
 
 
 export default {
-  data() {
-    return {
-      user: {
-        name: 'John Doe',
-        email: 'john.doe@example.com',
-        avatar: 'https://via.placeholder.com/150',
-        progress: [
-          { label: 'Task 1', value: 75 },
-          { label: 'Task 2', value: 50 },
-          { label: 'Task 3', value: 90 },
-        ],
-      },
-      chart: null,
-    };
-  },
-  mounted() {
-    const ctx = document.getElementById('progressChart').getContext('2d');
-    this.chart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: this.user.progress.map(item => item.label),
-        datasets: [{
-          label: 'Progress',
-          data: this.user.progress.map(item => item.value),
-          backgroundColor: 'rgba(54, 162, 235, 0.2)',
-          borderColor: 'rgba(54, 162, 235, 1)',
-          borderWidth: 1
-        }]
-      },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true
-          }
-        }
-      }
-    });
-  },
-  methods: {
-    editProfile() {
-      // Lógica para mostrar el formulario de edición
-      console.log('Edit Profile clicked');
-    }
+  components: {
+    NavComponenteAdmin,
+    FotoperfilUser,
+    PerfilUsuario,
+    GaleriaImagnes,
+    rutinaSemana,
+    Footer,
   }
 };
 </script>
-
-<style scoped>
-.user-profile {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  padding: 20px;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-}
-
-.avatar {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  margin-right: 20px;
-}
-
-.user-details {
-  text-align: left;
-}
-
-.progress-chart {
-  width: 400px;
-}
-</style>

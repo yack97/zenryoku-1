@@ -22,12 +22,7 @@ const routes = [
     component: () => import('../views/AdminView.vue'),
   },
   {
-    path: '/lista',
-    name: 'lista',
-    component: () => import('../views/ListaView.vue'),
-  },
-  {
-    path: '/user',
+    path: '/user/:username', // Agregar :username como parámetro
     name: 'user',
     component: () => import('../views/UserView.vue'),
   },

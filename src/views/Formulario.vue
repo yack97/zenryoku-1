@@ -52,7 +52,7 @@ main {
   width: 50rem;
   height: 50rem;
   background-image: url('../assets/Ellipse-2-3.svg');
-  opacity: 0.6;
+  opacity: 0.2;
 }
 
 /* Imagen de fondo 2 (Elipse a la derecha, parte superior) */
@@ -72,7 +72,7 @@ main {
   width: 40rem;
   height: 40rem;
   background-image: url('../assets/Ellipse-1.svg');
-  opacity: 05;
+  opacity: 01;
 }
 
 /* Imagen de fondo 4 (Elipse a la derecha, parte inferior, color invertido) */
@@ -82,7 +82,7 @@ main {
   width: 50rem;
   height: 50rem;
   background-image: url('../assets/Ellipse-2-3.svg');
-  opacity: 0.6;
+  opacity: 0.2;
 }
 
 /* Responsive adjustments */

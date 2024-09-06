@@ -37,49 +37,25 @@
 
     <!-- Contenedor para Lista de Usuarios -->
     <div class="w-full lg:w-1/2 flex flex-col gap-4">
-      <h2 class="text-xl lg:text-2xl font-bold">Lista de Usuarios</h2>
-      <table class="table-auto w-full">
-        <thead>
-          <tr>
-            <th class="px-4 py-2">Email</th>
-            <th class="px-4 py-2">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="user in users" :key="user.id">
-            <td class="border px-4 py-2">{{ user.email }}</td>
-            <td class="border px-4 py-2">
-              <button
-                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                @click="startEditing(user)"
-              >
-                Editar
-              </button>
-              <button
-                class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                @click="deleteUser(user.id)"
-              >
-                Eliminar
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <ListarUsuarios />
     </div>
   </div>
 </template>
 
 <script>
-import { getAuth, createUserWithEmailAndPassword, updateEmail, updatePassword } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { db } from '../FirebaseConfig';
-import { collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from "firebase/firestore";
+import { collection, addDoc } from "firebase/firestore";
+import ListarUsuarios from '../components/ListarUsuarios.vue';
 
 export default {
+  components: {
+    ListarUsuarios,
+  },
   data() {
     return {
       email: "",
       password: "",
-      users: [],
       isEditing: false,
       currentUserId: null,
     };
@@ -94,6 +70,7 @@ export default {
         await addDoc(collection(db, "users"), {
           uid: user.uid,
           email: user.email,
+          role: 'user', // Asignar rol 'user' al nuevo usuario
         });
 
         console.log("Usuario creado y guardado en Firestore:", user);
@@ -101,7 +78,7 @@ export default {
         this.email = "";
         this.password = "";
 
-        this.fetchUsers();
+        // Aquí puedes llamar a una función para actualizar la lista de usuarios en el componente hijo si es necesario
       } catch (error) {
         console.error("Error al crear el usuario:", error.message);
       }
@@ -111,65 +88,9 @@ export default {
       this.email = user.email;
       this.currentUserId = user.id;
     },
-    async updateUser() {
-      const auth = getAuth();
-      try {
-        const userRef = doc(db, "users", this.currentUserId);
-        const userSnapshot = await getDocs(userRef);
-
-        if (userSnapshot.exists()) {
-          const userAuth = auth.currentUser;
-          if (userAuth) {
-            await updateEmail(userAuth, this.email);
-            if (this.password) {
-              await updatePassword(userAuth, this.password);
-            }
-          }
-
-          await updateDoc(userRef, {
-            email: this.email,
-          });
-
-          console.log("Usuario actualizado en Firestore y Auth:", this.email);
-
-          this.email = "";
-          this.password = "";
-          this.isEditing = false;
-          this.currentUserId = null;
-
-          this.fetchUsers();
-        }
-      } catch (error) {
-        console.error("Error al actualizar el usuario:", error.message);
-      }
-    },
-    async fetchUsers() {
-      try {
-        const querySnapshot = await getDocs(collection(db, "users"));
-        this.users = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-      } catch (error) {
-        console.error("Error al obtener la lista de usuarios:", error.message);
-      }
-    },
-    async deleteUser(userId) {
-      try {
-        await deleteDoc(doc(db, "users", userId));
-        console.log("Usuario eliminado:", userId);
-        this.fetchUsers();
-      } catch (error) {
-        console.error("Error al eliminar el usuario:", error.message);
-      }
-    },
   },
   created() {
-    this.fetchUsers();
+    // Puedes hacer una llamada a una función para obtener usuarios si lo deseas
   },
 };
 </script>
-
-<style scoped>
-/* Añade estilos adicionales aquí si es necesario */
-</style>
